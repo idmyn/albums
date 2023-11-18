@@ -7,22 +7,35 @@
     "build": "vite build && vite build --ssr",
     "dev": "vite dev",
     "start": "remix-serve ./build/index.js",
-    "typecheck": "tsc"
+    "db:push": "drizzle-kit push:sqlite",
+    "types:check": "tsc"
   },
   "dependencies": {
+    "@effect/schema": "^0.48.4",
+    "@isaacs/ttlcache": "^1.4.1",
+    "@libsql/client": "0.4.0-pre.1",
+    "@napi-rs/canvas": "^0.1.44",
+    "@radix-ui/themes": "^2.0.1",
     "@remix-run/node": "^2.3.0",
     "@remix-run/react": "^2.3.0",
     "@remix-run/serve": "^2.3.0",
+    "colord": "^2.9.3",
+    "drizzle-orm": "^0.29.0",
+    "effect": "2.0.0-next.55",
     "isbot": "^3.6.8",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "usehooks-ts": "^2.9.1"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.3.0",
     "@remix-run/eslint-config": "^2.3.0",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
+    "better-sqlite3": "^9.1.1",
+    "drizzle-kit": "^0.20.4",
     "eslint": "^8.38.0",
+    "type-fest": "^4.8.1",
     "typescript": "^5.1.6",
     "vite": "^5.0.0",
     "vite-tsconfig-paths": "^4.2.1"
