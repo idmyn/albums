@@ -15,7 +15,7 @@ const fetchAlbumsPage = (access_token: string, pageUrl?: string) =>
       },
       catch: () => new Error(),
     }),
-    Effect.flatMap(S.parseEither(SpotifyAlbumsResponse)),
+    Effect.flatMap(S.parseEither(SpotifyAlbumsResponse))
   );
 
 let fetchedPages = 0;
@@ -29,11 +29,11 @@ export const fetchAlbums = (access_token: string) =>
           fetchedPages++;
           return [
             Chunk.fromIterable(output.items),
-            fetchedPages > 0 ? Option.none<string>() : output.next,
+            fetchedPages > 3 ? Option.none<string>() : output.next,
           ];
-        }),
+        })
       );
-    },
+    }
   );
 
 const SpotifyArtist = S.struct({
@@ -51,7 +51,7 @@ const SpotifyAlbum = S.struct({
       height: S.number,
       width: S.number,
       url: S.string,
-    }),
+    })
   ).pipe(
     S.itemsCount(3),
     S.transformOrFail(
@@ -68,8 +68,8 @@ const SpotifyAlbum = S.struct({
           largeImageUrl: images[2]!.url,
         });
       },
-      (_) => PR.failure(PR.forbidden),
-    ),
+      (_) => PR.failure(PR.forbidden)
+    )
   ),
 });
 export type SpotifyAlbum = S.Schema.To<typeof SpotifyAlbum>;

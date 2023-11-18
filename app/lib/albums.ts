@@ -14,23 +14,15 @@ export const triggerAlbumsFetchAndStore = (
     pipe(
       fetchAlbums(accessToken),
       Stream.flatMap(({ album }) => processAlbum(album)),
-      Stream.runCollect,
-      Effect.map(Chunk.toReadonlyArray),
-      Effect.tap((albums) => {
-        // NOTE: I reckon ideally I'd Stream.tap -> saveAlbum with batching
-        // https://discord.com/channels/795981131316985866/1172228115150417930/1174276571859800105
-        // storeAlbums(),
-        console.log("finished! fetched this many albums:", albums.length);
-        return storeUserAlbums(userId, albums);
-      }),
+      Stream.grouped(50),
+      Stream.tap((albums) => storeUserAlbums(userId, Chunk.toArray(albums))),
+      Stream.runCollect, // TODO finalizer?
       Effect.tap(() => {
         updateUserJobStatus(userId, "albums-fetch", "completed");
         return Effect.succeedNone;
       }),
       Effect.runPromise
-    ).then(() => {
-      console.log("done!");
-    });
+    );
   });
 };
 

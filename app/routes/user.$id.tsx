@@ -34,20 +34,25 @@ export default function User() {
 
   return (
     <Container size="4">
-      {isAlbumsFetchInProgress ? (
+      {albums.length === 0 && isAlbumsFetchInProgress ? (
         <Center height="100vh">
           <Text size="6">loading...</Text>
         </Center>
       ) : (
-        <Flex p="5" gap="3" wrap="wrap" justify="center">
-          {albums.map((album) => (
-            <img
-              key={album.id}
-              src={album.mediumImageUrl}
-              alt={`album art for ${album.name}`}
-            />
-          ))}
-        </Flex>
+        <>
+          <Text size="5" style={{ position: "fixed", top: 50 }}>
+            {albums.length}
+          </Text>
+          <Flex p="5" gap="3" wrap="wrap" justify="center">
+            {albums.map((album) => (
+              <img
+                key={album.id}
+                src={album.mediumImageUrl}
+                alt={`album art for ${album.name}`}
+              />
+            ))}
+          </Flex>
+        </>
       )}
     </Container>
   );

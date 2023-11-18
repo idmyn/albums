@@ -17,13 +17,13 @@ type AlbumWithArtists = NewAlbum & {
 
 export const storeUserAlbums = (
   userId: string,
-  newAlbums: ReadonlyDeep<AlbumWithArtists[]>,
+  newAlbums: ReadonlyDeep<AlbumWithArtists[]>
 ) => {
   const albumArtistPairs = newAlbums.flatMap((album) =>
     album.artists.map((artist) => ({
       albumId: album.id,
       artistId: artist.id,
-    })),
+    }))
   );
 
   const userAlbumParis = newAlbums.map((album) => ({
@@ -41,7 +41,7 @@ export const storeUserAlbums = (
   }));
 
   const artistsToStore: NewArtist[] = newAlbums.flatMap(
-    (album) => album.artists,
+    (album) => album.artists
   );
 
   const storeAlbums = Effect.tryPromise({
@@ -82,7 +82,7 @@ export const storeUserAlbums = (
 
   const storeRelationships = Effect.all(
     [storeAlbumArtistPairs, storeUserAlbumPairs],
-    { concurrency: "unbounded" },
+    { concurrency: "unbounded" }
   );
 
   return Effect.all([storeEntities, storeRelationships]);
