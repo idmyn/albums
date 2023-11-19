@@ -3,5 +3,8 @@ import { createClient } from "@libsql/client";
 import { env } from "../env";
 import * as schema from "./schema";
 
-const client = createClient({ url: env.DATABASE_URL });
+const client = createClient({
+  url: env.DATABASE_URL,
+  authToken: process.env.DATABASE_TOKEN,
+});
 export const db = drizzle(client, { schema });
