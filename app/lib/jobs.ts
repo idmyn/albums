@@ -8,11 +8,23 @@ const jobKey = (userId: string, jobName: JobName) =>
 type JobName = "albums-fetch";
 type JobStatus = "running" | "completed" | "failed";
 
-export const updateUserJobStatus = (
-  userId: string,
-  job: JobName,
-  status: JobStatus,
-) => cache.set(jobKey(userId, job), status);
+type JobData = {
+  "albums-fetch": {
+    fetchedSoFar: number;
+    total: number;
+  };
+};
 
-export const getUserJobStatus = (userId: string, job: JobName) =>
-  cache.get(jobKey(userId, job)) as JobStatus;
+type JobInfo<J extends JobName> = {
+  status: JobStatus;
+  data?: JobData[J];
+};
+
+export const updateUserJobInfo = <J extends JobName>(
+  userId: string,
+  job: J,
+  info: JobInfo<J>
+) => cache.set(jobKey(userId, job), info);
+
+export const getUserJobInfo = <J extends JobName>(userId: string, job: J) =>
+  cache.get(jobKey(userId, job)) as undefined | JobInfo<J>;

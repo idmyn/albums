@@ -1,5 +1,5 @@
 import { Effect, Stream, Chunk, pipe } from "effect";
-import { updateUserJobStatus } from "./jobs";
+import { updateUserJobInfo } from "./jobs";
 import { fetchAlbums, SpotifyAlbum } from "./spotify/albums";
 import { average } from "./color";
 import { storeUserAlbums } from "./db/queries/albums";
@@ -9,16 +9,16 @@ export const triggerAlbumsFetchAndStore = (
   accessToken: string
 ): Effect.Effect<never, unknown, unknown> => {
   return Effect.sync(() => {
-    updateUserJobStatus(userId, "albums-fetch", "running");
+    updateUserJobInfo(userId, "albums-fetch", { status: "running" });
     // intentionally not awaited
     pipe(
-      fetchAlbums(accessToken),
+      fetchAlbums(userId, accessToken),
       Stream.flatMap(({ album }) => processAlbum(album)),
       Stream.grouped(50),
       Stream.tap((albums) => storeUserAlbums(userId, Chunk.toArray(albums))),
       Stream.runCollect, // TODO finalizer?
       Effect.tap(() => {
-        updateUserJobStatus(userId, "albums-fetch", "completed");
+        updateUserJobInfo(userId, "albums-fetch", { status: "completed" });
         return Effect.succeedNone;
       }),
       Effect.runPromise
