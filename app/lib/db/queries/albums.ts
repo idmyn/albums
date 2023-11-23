@@ -10,6 +10,8 @@ import {
 } from "../schema";
 import { Effect } from "effect";
 import { ReadonlyDeep } from "type-fest";
+import { inArray } from "drizzle-orm";
+import { SpotifyAlbum } from "~/lib/spotify/albums";
 
 type AlbumWithArtists = NewAlbum & {
   artists: NewArtist[];
@@ -86,4 +88,31 @@ export const storeUserAlbums = (
   );
 
   return Effect.all([storeEntities, storeRelationships]);
+};
+
+export const lookupAverageColors = (
+  newAlbums: ReadonlyDeep<SpotifyAlbum[]>
+) => {
+  return Effect.tryPromise({
+    try: () =>
+      db.query.albums.findMany({
+        where: inArray(
+          albums.id,
+          newAlbums.map((a) => a.id)
+        ),
+      }),
+    catch: mapDbError,
+  }).pipe(
+    Effect.map((seenAlbums) =>
+      newAlbums.map((newAlbum) => {
+        const averageColor = seenAlbums.find(
+          (a) => a.id === newAlbum.id
+        )?.averageColor;
+        return {
+          ...newAlbum,
+          averageColor,
+        };
+      })
+    )
+  );
 };

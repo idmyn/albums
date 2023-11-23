@@ -5,8 +5,8 @@ import { Box, Flex, Text } from "@radix-ui/themes";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "albums" },
+    { name: "description", content: "see your albums sorted by colour" },
   ];
 };
 
@@ -15,7 +15,7 @@ export default function Index() {
     <Center height="100vh">
       <Flex p="7" direction="column" gap="3" style={{ textAlign: "center" }}>
         <Text as="p" size="7">
-          wanna see your albums arranged by the colour of their album art?
+          wanna see your saved albums arranged by colour?
         </Text>
         <Link size="6" color="green" to="/login">
           log in with spotify

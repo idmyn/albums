@@ -1,30 +1,11 @@
 import TTLCache from "@isaacs/ttlcache";
 
-const cache = new TTLCache({ ttl: 1000 * 20 }); // 20 seconds
-
-const jobKey = (userId: string, jobName: JobName) =>
-  `user:${userId}:job:${jobName}`;
-
-type JobName = "albums-fetch";
-type JobStatus = "running" | "completed" | "failed";
-
-type JobData = {
-  "albums-fetch": {
-    fetchedSoFar: number;
-    total: number;
-  };
+type FetchJobInfo = {
+  inProgress: boolean;
+  totalAlbumCount?: number;
 };
-
-type JobInfo<J extends JobName> = {
-  status: JobStatus;
-  data?: JobData[J];
-};
-
-export const updateUserJobInfo = <J extends JobName>(
-  userId: string,
-  job: J,
-  info: JobInfo<J>
-) => cache.set(jobKey(userId, job), info);
-
-export const getUserJobInfo = <J extends JobName>(userId: string, job: J) =>
-  cache.get(jobKey(userId, job)) as undefined | JobInfo<J>;
+const fetchJobCache = new TTLCache({ ttl: 1000 * 20 }); // 20 seconds
+export const setFetchInfoForUser = (userId: string, info: FetchJobInfo) =>
+  fetchJobCache.set(userId, info);
+export const getFetchInfoForUser = (userId: string) =>
+  fetchJobCache.get<FetchJobInfo>(userId);

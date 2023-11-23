@@ -6,7 +6,7 @@ import { sortByColor } from "~/lib/color";
 import { getUserAlbums } from "~/lib/db/queries/users";
 import { effectLoader } from "~/lib/effect";
 import { useInterval } from "usehooks-ts";
-import { getUserJobInfo } from "~/lib/jobs";
+import { getFetchInfoForUser } from "~/lib/jobs";
 import { Center } from "~/components/Center";
 
 export const loader = effectLoader(({ params }) => {
@@ -19,17 +19,18 @@ export const loader = effectLoader(({ params }) => {
       )
     ),
     Effect.map((albums) => {
-      const jobInfo = getUserJobInfo(userId, "albums-fetch");
-      const isAlbumsFetchInProgress = jobInfo?.status === "running";
-      const fetchStatus = jobInfo?.data;
+      const jobInfo = getFetchInfoForUser(userId);
+      const totalAlbumCount = jobInfo?.totalAlbumCount;
+      const isAlbumsFetchInProgress =
+        jobInfo?.inProgress && albums.length !== totalAlbumCount;
 
-      return { albums, isAlbumsFetchInProgress, fetchStatus };
+      return { albums, isAlbumsFetchInProgress, totalAlbumCount };
     })
   );
 });
 
 export default function User() {
-  const { albums, isAlbumsFetchInProgress, fetchStatus } =
+  const { albums, isAlbumsFetchInProgress, totalAlbumCount } =
     useLoaderData<typeof loader>();
 
   const revalidator = useRevalidator();
@@ -49,7 +50,7 @@ export default function User() {
         </Center>
       ) : (
         <>
-          {!!fetchStatus && (
+          {isAlbumsFetchInProgress && !!totalAlbumCount && (
             <Box
               p="2"
               style={{
@@ -63,7 +64,7 @@ export default function User() {
               <Text size="5">
                 fetched & processed
                 <br />
-                {albums.length} / {fetchStatus.total} so far
+                {albums.length} / {totalAlbumCount} so far
                 <br />
                 hang tight
               </Text>

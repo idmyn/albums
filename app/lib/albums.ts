@@ -1,24 +1,32 @@
 import { Effect, Stream, Chunk, pipe } from "effect";
-import { updateUserJobInfo } from "./jobs";
 import { fetchAlbums, SpotifyAlbum } from "./spotify/albums";
 import { average } from "./color";
-import { storeUserAlbums } from "./db/queries/albums";
+import { setFetchInfoForUser } from "./jobs";
+import { storeUserAlbums, lookupAverageColors } from "./db/queries/albums";
 
 export const triggerAlbumsFetchAndStore = (
   userId: string,
   accessToken: string
 ): Effect.Effect<never, unknown, unknown> => {
   return Effect.sync(() => {
-    updateUserJobInfo(userId, "albums-fetch", { status: "running" });
+    setFetchInfoForUser(userId, { inProgress: true });
     // intentionally not awaited
     pipe(
       fetchAlbums(userId, accessToken),
-      Stream.flatMap(({ album }) => processAlbum(album)),
-      Stream.grouped(50),
-      Stream.tap((albums) => storeUserAlbums(userId, Chunk.toArray(albums))),
+      Stream.flatMap((_albums) => {
+        const albums = Chunk.toArray(_albums).map(({ album }) => album);
+        return lookupAverageColors(albums);
+      }),
+      Stream.flatMap((albums) =>
+        pipe(
+          albums.map(processAlbum),
+          Effect.all // TODO concurrency?
+        )
+      ),
+      Stream.tap((albums) => storeUserAlbums(userId, albums)),
       Stream.runCollect, // TODO finalizer?
       Effect.tap(() => {
-        updateUserJobInfo(userId, "albums-fetch", { status: "completed" });
+        setFetchInfoForUser(userId, { inProgress: false });
         return Effect.succeedNone;
       }),
       Effect.runPromise
@@ -26,21 +34,21 @@ export const triggerAlbumsFetchAndStore = (
   });
 };
 
-const processAlbum = (album: SpotifyAlbum) =>
-  pipe(
-    // NOTE: could move average into schema transformation
-    average(album.images.smallImageUrl),
-    Effect.map((averageColor) => {
-      const { smallImageUrl, mediumImageUrl, largeImageUrl } = album.images;
-
-      return {
-        id: album.id,
-        name: album.name,
-        averageColor: averageColor.toHex(),
-        artists: album.artists,
-        smallImageUrl,
-        mediumImageUrl,
-        largeImageUrl,
-      };
-    })
+const processAlbum = (album: SpotifyAlbum & { averageColor?: string }) => {
+  const { smallImageUrl, mediumImageUrl, largeImageUrl } = album.images;
+  return (
+    album.averageColor
+      ? Effect.succeed(album.averageColor)
+      : average(album.images.smallImageUrl).pipe(Effect.map((c) => c.toHex()))
+  ).pipe(
+    Effect.map((averageColor) => ({
+      id: album.id,
+      name: album.name,
+      averageColor,
+      artists: album.artists,
+      smallImageUrl,
+      mediumImageUrl,
+      largeImageUrl,
+    }))
   );
+};
