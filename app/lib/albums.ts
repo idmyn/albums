@@ -3,6 +3,7 @@ import { fetchAlbums, SpotifyAlbum } from "./spotify/albums";
 import { average } from "./color";
 import { setFetchInfoForUser } from "./jobs";
 import { storeUserAlbums, lookupAverageColors } from "./db/queries/albums";
+import { otelLayer } from "./tracing";
 
 export const triggerAlbumsFetchAndStore = (
   userId: string,
@@ -12,6 +13,7 @@ export const triggerAlbumsFetchAndStore = (
     setFetchInfoForUser(userId, { inProgress: true });
     // intentionally not awaited
     pipe(
+      // TODO cancel fetch if total is the same number as what we have in the db
       fetchAlbums(userId, accessToken),
       Stream.flatMap((_albums) => {
         const albums = Chunk.toArray(_albums).map(({ album }) => album);
@@ -29,6 +31,8 @@ export const triggerAlbumsFetchAndStore = (
         setFetchInfoForUser(userId, { inProgress: false });
         return Effect.succeedNone;
       }),
+      Effect.withSpan("triggersAlbumsFetchAndStore"),
+      Effect.provide(otelLayer),
       Effect.runPromise
     );
   });
@@ -49,6 +53,7 @@ const processAlbum = (album: SpotifyAlbum & { averageColor?: string }) => {
       smallImageUrl,
       mediumImageUrl,
       largeImageUrl,
-    }))
+    })),
+    Effect.withSpan("processAlbum")
   );
 };

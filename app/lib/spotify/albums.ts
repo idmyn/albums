@@ -17,7 +17,7 @@ export const fetchAlbumsPage = (access_token: string, pageUrl?: string) =>
       catch: () => new Error(),
     }),
     Effect.flatMap(S.parseEither(SpotifyAlbumsResponse))
-  );
+  ).pipe(Effect.withSpan("fetchAlbumsPage"));
 
 export const fetchAlbums = (userId: string, access_token: string) => {
   const pageSize = 50;

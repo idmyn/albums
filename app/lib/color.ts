@@ -34,7 +34,7 @@ export const average = (src: string) =>
       });
     },
     catch: () => new AverageColorError(),
-  });
+  }).pipe(Effect.withSpan("calculateAverageColor"));
 
 // Sorting
 
@@ -53,7 +53,7 @@ type Rgb = { r: number; g: number; b: number };
 
 const oneDimensionSorting = <T extends HasColord>(
   itemsWithColor: T[],
-  dim: "h" | "s" | "l",
+  dim: "h" | "s" | "l"
 ) => {
   return itemsWithColor.sort((left, right) => {
     if (left.color.toHsl()[dim] < right.color.toHsl()[dim]) {
@@ -133,6 +133,6 @@ export const sortByColor = <T extends HasColord>(_input: T[]) => {
     cluster.itemsWithColor.map((item) => ({
       ...item,
       color: item.color.toHex(),
-    })),
+    }))
   );
 };
