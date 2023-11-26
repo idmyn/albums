@@ -42,13 +42,13 @@ export function fetchTokens(code: string) {
   const authorization =
     "Basic " +
     Buffer.from(
-      env.SPOTIFY_CLIENT_ID + ":" + env.SPOTIFY_CLIENT_SECRET,
+      env.SPOTIFY_CLIENT_ID + ":" + env.SPOTIFY_CLIENT_SECRET
     ).toString("base64");
 
   const formEncoded = Object.entries(payload)
     .map(
       ([key, value]) =>
-        encodeURIComponent(key) + "=" + encodeURIComponent(value),
+        encodeURIComponent(key) + "=" + encodeURIComponent(value)
     )
     .join("&");
 

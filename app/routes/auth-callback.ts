@@ -4,6 +4,8 @@ import { pipe, Effect } from "effect";
 import { fetchTokens, fetchUser } from "~/lib/spotify/users";
 import { storeUser } from "~/lib/db/queries/users";
 import { triggerAlbumsFetchAndStore } from "~/lib/albums";
+import { logErrors } from "~/lib/logger";
+import { otelLayer } from "~/lib/tracing";
 
 export const loader = effectLoader(({ request }) => {
   const url = new URL(request.url);
@@ -34,7 +36,6 @@ export const loader = effectLoader(({ request }) => {
         fetchUser(tokens),
         Effect.tap(storeUser),
         Effect.tap(({ id }) =>
-          // intentionally not awaited
           triggerAlbumsFetchAndStore(id, tokens.access_token)
         )
       )

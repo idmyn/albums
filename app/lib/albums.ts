@@ -1,9 +1,10 @@
-import { Effect, Stream, Chunk, Console, pipe } from "effect";
+import { Effect, Stream, Chunk, pipe } from "effect";
 import { fetchAlbums, SpotifyAlbum } from "./spotify/albums";
 import { average } from "./color";
 import { setFetchInfoForUser } from "./jobs";
 import { storeUserAlbums, lookupAverageColors } from "./db/queries/albums";
 import { otelLayer } from "./tracing";
+import { logErrors } from "./logger";
 
 export const triggerAlbumsFetchAndStore = (
   userId: string,
@@ -11,7 +12,7 @@ export const triggerAlbumsFetchAndStore = (
 ) => {
   setFetchInfoForUser(userId, { inProgress: true });
 
-  pipe(
+  return pipe(
     fetchAlbums(userId, accessToken),
     Stream.flatMap((_albums) => {
       const albums = Chunk.toArray(_albums).map(({ album }) => album);
@@ -31,22 +32,8 @@ export const triggerAlbumsFetchAndStore = (
     }),
     Effect.withSpan("triggersAlbumsFetchAndStore"),
     Effect.provide(otelLayer),
-    Effect.sandbox,
-    Effect.catchTags({
-      Die: (cause) =>
-        Console.error(`Caught a defect: ${cause.defect}`).pipe(
-          Effect.as("fallback result on defect")
-        ),
-      Interrupt: (cause) =>
-        Console.log(`Caught a defect: ${cause.fiberId}`).pipe(
-          Effect.as("fallback result on fiber interruption")
-        ),
-      Fail: (cause) =>
-        Console.log(`Caught a defect: ${cause.error}`).pipe(
-          Effect.as("fallback result on failure")
-        ),
-    }),
-    Effect.runPromise
+    logErrors,
+    Effect.forkDaemon
   );
 };
 

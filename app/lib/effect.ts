@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { redirect as remixRedirect, LoaderFunctionArgs } from "@remix-run/node";
-import { logger } from "./logger";
+import { logAndMapErrors } from "./logger";
 
 type RedirectOptions = Parameters<typeof remixRedirect>[1];
 
@@ -17,9 +17,7 @@ export const effectLoader = <V>(
 ) => {
   return async (args: LoaderFunctionArgs): Promise<V> => {
     const value = await cb(args).pipe(
-      Effect.tapErrorCause(logger.error),
-      Effect.mapError(() => new Redirect("/error")),
-      Effect.merge,
+      logAndMapErrors(() => new Redirect("/error")),
       Effect.runPromise
     );
 
