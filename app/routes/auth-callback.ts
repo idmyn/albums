@@ -34,6 +34,7 @@ export const loader = effectLoader(({ request }) => {
         fetchUser(tokens),
         Effect.tap(storeUser),
         Effect.tap(({ id }) =>
+          // intentionally not awaited
           triggerAlbumsFetchAndStore(id, tokens.access_token)
         )
       )
