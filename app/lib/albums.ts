@@ -1,4 +1,4 @@
-import { Effect, Stream, Chunk, pipe } from "effect";
+import { Effect, Stream, Chunk, Console, pipe } from "effect";
 import { fetchAlbums, SpotifyAlbum } from "./spotify/albums";
 import { average } from "./color";
 import { setFetchInfoForUser } from "./jobs";
@@ -31,10 +31,20 @@ export const triggerAlbumsFetchAndStore = (
     }),
     Effect.withSpan("triggersAlbumsFetchAndStore"),
     Effect.provide(otelLayer),
-    Effect.catchAllDefect((error) => {
-      // NOTE: this catches possible network errors raised by otelLayer
-      console.error(error);
-      return Effect.succeedNone;
+    Effect.sandbox,
+    Effect.catchTags({
+      Die: (cause) =>
+        Console.error(`Caught a defect: ${cause.defect}`).pipe(
+          Effect.as("fallback result on defect")
+        ),
+      Interrupt: (cause) =>
+        Console.log(`Caught a defect: ${cause.fiberId}`).pipe(
+          Effect.as("fallback result on fiber interruption")
+        ),
+      Fail: (cause) =>
+        Console.log(`Caught a defect: ${cause.error}`).pipe(
+          Effect.as("fallback result on failure")
+        ),
     }),
     Effect.runPromise
   );
