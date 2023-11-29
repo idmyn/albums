@@ -1,7 +1,7 @@
-import { Effect, Runtime } from "effect";
+import { Effect, Runtime, Layer, Scope } from "effect";
 import { redirect as remixRedirect, LoaderFunctionArgs } from "@remix-run/node";
 import { logAndMapErrors } from "./logger";
-import { runtime } from "./tracing";
+import { otelLayer } from "./tracing";
 
 type RedirectOptions = Parameters<typeof remixRedirect>[1];
 
@@ -13,6 +13,11 @@ export class Redirect {
 export const redirect = (path: string, options?: RedirectOptions) =>
   Effect.succeed(new Redirect(path, options));
 
+const scope = Effect.runSync(Scope.make());
+export const runtime = Layer.toRuntime(otelLayer).pipe(
+  Scope.extend(scope),
+  Effect.runSync
+);
 const runPromise = Runtime.runPromise(runtime);
 
 export const effectLoader = <V>(
@@ -22,7 +27,7 @@ export const effectLoader = <V>(
   return async (args: LoaderFunctionArgs): Promise<V> => {
     const value = await cb(args).pipe(
       logAndMapErrors(() => new Redirect("/error")),
-      Effect.withSpan(`loader.${loaderName}`),
+      Effect.withSpan(`loaders.${loaderName}`),
       runPromise
     );
 

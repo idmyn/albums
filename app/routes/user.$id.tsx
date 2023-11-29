@@ -45,9 +45,9 @@ export default function User() {
   return (
     <Container size="4">
       {albums.length === 0 && isAlbumsFetchInProgress ? (
-        <Center height="100vh">
+        <div className="center-screen">
           <Text size="6">fetching albums, hang tight...</Text>
-        </Center>
+        </div>
       ) : (
         <>
           {isAlbumsFetchInProgress && !!totalAlbumCount && (

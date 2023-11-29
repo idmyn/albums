@@ -36,6 +36,7 @@
     "@flydotio/dockerfile": "^0.4.10",
     "@remix-run/dev": "^2.3.0",
     "@remix-run/eslint-config": "^2.3.0",
+    "@rollup/wasm-node": "^4.6.0",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
     "better-sqlite3": "^9.1.1",
@@ -44,6 +45,7 @@
     "postcss-100vh-fix": "^1.0.2",
     "type-fest": "^4.8.1",
     "typescript": "^5.1.6",
+    "unocss": "^0.57.7",
     "vite": "^5.0.0",
     "vite-tsconfig-paths": "^4.2.1"
   },

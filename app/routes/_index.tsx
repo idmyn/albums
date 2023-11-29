@@ -12,7 +12,7 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   return (
-    <Center height="100vh">
+    <div className="center-screen">
       <Flex p="7" direction="column" gap="3" style={{ textAlign: "center" }}>
         <Text as="p" size="7">
           wanna see your saved albums arranged by colour?
@@ -21,6 +21,6 @@ export default function Index() {
           log in with spotify
         </Link>
       </Flex>
-    </Center>
+    </div>
   );
 }

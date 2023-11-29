@@ -9,6 +9,8 @@ import {
 import "@radix-ui/themes/styles.css";
 import { Theme } from "@radix-ui/themes";
 
+import "virtual:uno.css";
+
 export default function App() {
   return (
     <html lang="en">
