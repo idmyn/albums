@@ -4,6 +4,7 @@ import { pipe, Effect } from "effect";
 import { fetchTokens, fetchUser } from "~/lib/spotify/users";
 import { storeUser } from "~/lib/db/queries/users";
 import { triggerAlbumsFetchAndStore } from "~/lib/albums";
+import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
 
 export const loader = effectLoader("auth-callback", ({ request }) => {
   const url = new URL(request.url);
@@ -32,6 +33,11 @@ export const loader = effectLoader("auth-callback", ({ request }) => {
     Effect.flatMap((tokens) =>
       pipe(
         fetchUser(tokens),
+        Effect.tap((user) =>
+          Effect.annotateCurrentSpan({
+            [SemanticAttributes.ENDUSER_ID]: user.id,
+          })
+        ),
         Effect.tap(storeUser),
         Effect.tap(({ id }) =>
           triggerAlbumsFetchAndStore(id, tokens.access_token)
