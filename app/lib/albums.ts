@@ -3,7 +3,6 @@ import { fetchAlbums, SpotifyAlbum } from "./spotify/albums";
 import { average } from "./color";
 import { setFetchInfoForUser } from "./jobs";
 import { storeUserAlbums, lookupAverageColors } from "./db/queries/albums";
-import { otelLayer } from "./tracing";
 import { logErrors } from "./logger";
 
 export const triggerAlbumsFetchAndStore = (
@@ -31,7 +30,6 @@ export const triggerAlbumsFetchAndStore = (
       return Effect.succeedNone;
     }),
     Effect.withSpan("triggersAlbumsFetchAndStore"),
-    Effect.provide(otelLayer),
     logErrors,
     Effect.forkDaemon
   );

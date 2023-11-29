@@ -15,7 +15,7 @@ const randomString = (length: number) => {
   return str;
 };
 
-export const loader = effectLoader((_args) => {
+export const loader = effectLoader("login", (_args) => {
   const state = randomString(16);
 
   const serializeCookie = Effect.tryPromise({

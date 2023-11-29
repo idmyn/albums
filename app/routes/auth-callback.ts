@@ -4,10 +4,8 @@ import { pipe, Effect } from "effect";
 import { fetchTokens, fetchUser } from "~/lib/spotify/users";
 import { storeUser } from "~/lib/db/queries/users";
 import { triggerAlbumsFetchAndStore } from "~/lib/albums";
-import { logErrors } from "~/lib/logger";
-import { otelLayer } from "~/lib/tracing";
 
-export const loader = effectLoader(({ request }) => {
+export const loader = effectLoader("auth-callback", ({ request }) => {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");

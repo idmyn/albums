@@ -9,7 +9,7 @@ import { useInterval } from "usehooks-ts";
 import { getFetchInfoForUser } from "~/lib/jobs";
 import { Center } from "~/components/Center";
 
-export const loader = effectLoader(({ params }) => {
+export const loader = effectLoader("user.$id", ({ params }) => {
   const userId = params.id ?? "";
   return pipe(
     getUserAlbums(userId),
