@@ -1,10 +1,11 @@
 import { Redirect, effectLoader } from "~/lib/effect";
-import { spotifyAuthState } from "~/cookies.server";
+import { spotifyAuthState, authedUser } from "~/cookies.server";
 import { pipe, Effect } from "effect";
 import { fetchTokens, fetchUser } from "~/lib/spotify/users";
 import { storeUser } from "~/lib/db/queries/users";
 import { triggerAlbumsFetchAndStore } from "~/lib/albums";
 import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
+import { commitSession, getSession } from "~/sessions";
 
 export const loader = effectLoader("auth-callback", ({ request }) => {
   const url = new URL(request.url);
@@ -44,6 +45,24 @@ export const loader = effectLoader("auth-callback", ({ request }) => {
         )
       )
     ),
-    Effect.map((user) => new Redirect(`/user/${user.id}`))
+    Effect.flatMap((user) => {
+      const updateSession = pipe(
+        getSession(request.headers.get("Cookie")),
+        Effect.flatMap((session) => {
+          session.set("userId", user.id);
+          return commitSession(session);
+        })
+      );
+
+      return updateSession.pipe(
+        Effect.map((header) => {
+          return new Redirect(`/user/${user.id}`, {
+            headers: {
+              "Set-Cookie": header,
+            },
+          });
+        })
+      );
+    })
   );
 });
