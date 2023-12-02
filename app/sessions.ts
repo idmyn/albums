@@ -1,4 +1,7 @@
-import { createCookieSessionStorage } from "@remix-run/node";
+import {
+  createCookieSessionStorage,
+  Session as RemixSession,
+} from "@remix-run/node";
 import { env } from "./lib/env";
 import { Effect } from "effect";
 
@@ -9,6 +12,8 @@ type SessionData = {
 type SessionFlashData = {
   error: string;
 };
+
+export type Session = RemixSession<SessionData, SessionFlashData>;
 
 const {
   getSession: _getSession,
@@ -25,7 +30,7 @@ const {
   },
 });
 
-// todo make these more ergonomic
+// TODO make these more ergonomic
 const getSession = (...args: Parameters<typeof _getSession>) =>
   Effect.tryPromise({
     try: () => _getSession(...args),
