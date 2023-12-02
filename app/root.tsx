@@ -6,10 +6,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import "@radix-ui/themes/styles.css";
-import { Theme } from "@radix-ui/themes";
 
-import "virtual:uno.css";
+import "./tailwind.css";
 
 export default function App() {
   return (
@@ -20,10 +18,8 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body style={{ margin: 0 }}>
-        <Theme>
-          <Outlet />
-        </Theme>
+      <body className="m-0 antialiased">
+        <Outlet />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

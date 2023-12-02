@@ -1,4 +1,3 @@
-import { Box, Container, Flex, Text } from "@radix-ui/themes";
 import { useLoaderData, useRevalidator } from "@remix-run/react";
 import { colord } from "colord";
 import { Effect, pipe } from "effect";
@@ -42,34 +41,28 @@ export default function User() {
   );
 
   return (
-    <Container size="4">
+    <div className="w-full py-5">
       {albums.length === 0 && isAlbumsFetchInProgress ? (
         <div className="center-screen">
-          <Text size="6">fetching albums, hang tight...</Text>
+          <div className="flex flex-col items-center gap-2">
+            <span className="loading loading-spinner loading-xs" />
+            <span>fetching albums, hang tight...</span>
+          </div>
         </div>
       ) : (
         <>
           {isAlbumsFetchInProgress && !!totalAlbumCount && (
-            <Box
-              p="2"
-              style={{
-                textAlign: "right",
-                backgroundColor: "white",
-                position: "fixed",
-                top: "var(--space-5)",
-                right: "var(--space-5)",
-              }}
-            >
-              <Text size="5">
+            <div className="fixed top-6 right-6 text-right bg-white p-1">
+              <span>
                 fetched & processed
                 <br />
                 {albums.length} / {totalAlbumCount} so far
                 <br />
                 hang tight
-              </Text>
-            </Box>
+              </span>
+            </div>
           )}
-          <Flex pt="5" gap="3" wrap="wrap" justify="center">
+          <div className="w-3/4 mx-auto flex flex-wrap gap-3 justify-center">
             {albums.map((album) => (
               <img
                 key={album.id}
@@ -77,9 +70,9 @@ export default function User() {
                 alt={`album art for ${album.name}`}
               />
             ))}
-          </Flex>
+          </div>
         </>
       )}
-    </Container>
+    </div>
   );
 }

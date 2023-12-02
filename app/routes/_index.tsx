@@ -1,9 +1,8 @@
 import type { MetaFunction } from "@remix-run/node";
-import { Link } from "../components/Link";
-import { Box, Flex, Text } from "@radix-ui/themes";
 import { Redirect, effectLoader } from "~/lib/effect";
 import { getSession } from "~/sessions";
 import { Effect } from "effect";
+import { Link } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -29,14 +28,14 @@ export const loader = effectLoader("index", ({ request }) => {
 export default function Index() {
   return (
     <div className="center-screen">
-      <Flex p="7" direction="column" gap="3" style={{ textAlign: "center" }}>
-        <Text as="p" size="7">
+      <div className="text-center">
+        <p className="mb-2 text-2xl">
           wanna see your saved albums arranged by colour?
-        </Text>
-        <Link size="6" color="green" to="/login">
+        </p>
+        <Link className="text-xl text-green-600 hover:underline" to="/login">
           log in with spotify
         </Link>
-      </Flex>
+      </div>
     </div>
   );
 }

@@ -1,23 +1,18 @@
-import { Grid, Heading, Box } from "@radix-ui/themes";
-import { Link } from "~/components/Link";
+import { Link } from "@remix-run/react";
 
 export default function Error() {
   return (
-    <Grid
+    <div
       style={{ placeItems: "center", minHeight: "100vh", textAlign: "center" }}
     >
-      <Box>
-        <Heading as="h1" size="9" mb="3">
-          oh no!
-        </Heading>
-        <Link
-          to="/"
-          underline="always"
-          style={{ color: "black", textDecorationColor: "black" }}
-        >
-          back home
-        </Link>
-      </Box>
-    </Grid>
+      <div className="center-screen">
+        <div>
+          <h1 className="text-5xl font-bold mb-2">oh no!</h1>
+          <Link to="/" className="underline">
+            back home
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
