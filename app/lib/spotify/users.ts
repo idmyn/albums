@@ -1,25 +1,21 @@
 import { Effect } from "effect";
 import * as S from "@effect/schema/Schema";
 import { env } from "../env";
+import { GetTokensRequestError, GetUserRequestError } from "./errors";
 
 export const fetchUser = ({ access_token }: Tokens) =>
   Effect.tryPromise({
-    try: () =>
-      fetch("https://api.spotify.com/v1/me", {
+    try: () => {
+      return fetch("https://api.spotify.com/v1/me", {
         headers: {
           authorization: "Bearer " + access_token,
         },
-      }).then((res) => res.json()),
-    catch: () => new GetUserRequestError(),
-  }).pipe(Effect.flatMap(S.parse(User)));
-
-class GetUserRequestError {
-  readonly _tag = "GetUserRequestError";
-}
-
-class GetTokensRequestError {
-  readonly _tag = "GetTokensRequestError";
-}
+      }).then((res) => res.json());
+    },
+    catch: (cause) => new GetUserRequestError({ cause }),
+  })
+    .pipe(Effect.flatMap(S.parse(User)))
+    .pipe(Effect.withSpan("spotify.fetchUser"));
 
 const Tokens = S.struct({
   access_token: S.string,
@@ -62,6 +58,8 @@ export function fetchTokens(code: string) {
         },
         body: formEncoded,
       }).then((res) => res.json()),
-    catch: () => new GetTokensRequestError(),
-  }).pipe(Effect.flatMap(S.parse(Tokens)));
+    catch: (cause) => new GetTokensRequestError({ cause }),
+  })
+    .pipe(Effect.flatMap(S.parse(Tokens)))
+    .pipe(Effect.withSpan("spotify.fetchTokens"));
 }

@@ -1,5 +1,5 @@
 import { Redirect, effectLoader } from "~/lib/effect";
-import { spotifyAuthState, authedUser } from "~/cookies.server";
+import { spotifyAuthState } from "~/cookies.server";
 import { pipe, Effect } from "effect";
 import { fetchTokens, fetchUser } from "~/lib/spotify/users";
 import { storeUser } from "~/lib/db/queries/users";

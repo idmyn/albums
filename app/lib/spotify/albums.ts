@@ -2,6 +2,7 @@ import { Effect, Stream, Chunk, pipe } from "effect";
 import * as S from "@effect/schema/Schema";
 import * as PR from "@effect/schema/ParseResult";
 import { setFetchInfoForUser } from "../jobs";
+import { GetAlbumsRequestError } from "./errors";
 
 export const fetchAlbumsPage = (access_token: string, pageUrl?: string) =>
   pipe(
@@ -14,7 +15,7 @@ export const fetchAlbumsPage = (access_token: string, pageUrl?: string) =>
           },
         }).then((res) => res.json());
       },
-      catch: () => new Error(),
+      catch: (cause) => new GetAlbumsRequestError({ cause }),
     }),
     Effect.flatMap(S.parseEither(SpotifyAlbumsResponse))
   ).pipe(Effect.withSpan("fetchAlbumsPage"));

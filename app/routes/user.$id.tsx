@@ -7,7 +7,6 @@ import { getUserAlbums } from "~/lib/db/queries/users";
 import { effectLoader } from "~/lib/effect";
 import { useInterval } from "usehooks-ts";
 import { getFetchInfoForUser } from "~/lib/jobs";
-import { Center } from "~/components/Center";
 
 export const loader = effectLoader("user.$id", ({ params }) => {
   const userId = params.id ?? "";

@@ -25,9 +25,10 @@ export const effectLoader = <V>(
   cb: (args: LoaderFunctionArgs) => Effect.Effect<never, unknown, V>
 ) => {
   return async (args: LoaderFunctionArgs): Promise<V> => {
-    const value = await cb(args).pipe(
+    const loaderFn = cb(args).pipe(Effect.withSpan(`loaders.${loaderName}`));
+
+    const value = await loaderFn.pipe(
       logAndMapErrors(() => new Redirect("/error")),
-      Effect.withSpan(`loaders.${loaderName}`),
       runPromise
     );
 
