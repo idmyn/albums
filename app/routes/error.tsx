@@ -1,4 +1,8 @@
-import { Link } from "@remix-run/react";
+import { Link, MetaFunction } from "@remix-run/react";
+
+export const meta: MetaFunction = () => {
+  return [{ title: "albums" }];
+};
 
 export default function Error() {
   return (

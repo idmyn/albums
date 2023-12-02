@@ -1,4 +1,4 @@
-import { useLoaderData, useRevalidator } from "@remix-run/react";
+import { MetaFunction, useLoaderData, useRevalidator } from "@remix-run/react";
 import { colord } from "colord";
 import { Effect, pipe } from "effect";
 import { sortByColor } from "~/lib/color";
@@ -6,6 +6,10 @@ import { getUserAlbums } from "~/lib/db/queries/users";
 import { effectLoader } from "~/lib/effect";
 import { useInterval } from "usehooks-ts";
 import { getFetchInfoForUser } from "~/lib/jobs";
+
+export const meta: MetaFunction = () => {
+  return [{ title: "albums" }];
+};
 
 export const loader = effectLoader("user.$id", ({ params }) => {
   const userId = params.id ?? "";
