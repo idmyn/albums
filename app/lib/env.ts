@@ -5,9 +5,9 @@ import { Either as E } from "effect";
 // https://discord.com/channels/795981131316985866/1128715133456236694/1130170957806448710
 
 const Env = S.struct({
-  NODE_ENV: S.optional(S.literal("production", "development")).withDefault(
-    () => "development"
-  ),
+  NODE_ENV: S.optional(S.literal("production", "development"), {
+    default: () => "development",
+  }),
   SESSION_SECRET: S.string,
   SPOTIFY_CLIENT_ID: S.string,
   SPOTIFY_CLIENT_SECRET: S.string,
