@@ -68,13 +68,13 @@ const SpotifyAlbum = S.struct({
       }),
       (arr) => {
         const images = [...arr].sort((a, b) => a.width - b.width);
-        return PR.success({
+        return PR.succeed({
           smallImageUrl: images[0]!.url,
           mediumImageUrl: images[1]!.url,
           largeImageUrl: images[2]!.url,
         });
       },
-      (_) => PR.failure(PR.forbidden)
+      (_) => PR.fail(PR.forbidden)
     )
   ),
 });

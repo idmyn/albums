@@ -1,21 +1,19 @@
 import { Effect } from "effect";
 import * as S from "@effect/schema/Schema";
 import { env } from "../env";
-import { GetTokensRequestError, GetUserRequestError } from "./errors";
+import { GetTokensRequestError, checkHeaders } from "./errors";
+import * as Http from "@effect/platform/HttpClient";
 
 export const fetchUser = ({ access_token }: Tokens) =>
-  Effect.tryPromise({
-    try: () => {
-      return fetch("https://api.spotify.com/v1/me", {
-        headers: {
-          authorization: "Bearer " + access_token,
-        },
-      }).then((res) => res.json());
-    },
-    catch: (cause) => new GetUserRequestError({ cause }),
-  })
-    .pipe(Effect.flatMap(S.parse(User)))
-    .pipe(Effect.withSpan("spotify.fetchUser"));
+  Http.request
+    .get("https://api.spotify.com/v1/me")
+    .pipe(
+      Http.request.setHeader("Authorization", "Bearer " + access_token),
+      Http.client.fetch(),
+      Effect.flatMap(checkHeaders),
+      Effect.flatMap(Http.response.schemaBodyJson(User)),
+      Effect.withSpan("spotify.fetchUser")
+    );
 
 const Tokens = S.struct({
   access_token: S.string,

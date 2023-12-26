@@ -6,7 +6,7 @@ import { Either as E } from "effect";
 
 const Env = S.struct({
   NODE_ENV: S.optional(S.literal("production", "development"), {
-    default: () => "development",
+    default: () => "development" as const,
   }),
   SESSION_SECRET: S.string,
   SPOTIFY_CLIENT_ID: S.string,

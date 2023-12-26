@@ -6,6 +6,10 @@ export default {
   theme: {
     extend: {},
   },
+  daisyui: {
+    themes: ["light", "night"],
+    darkTheme: "night",
+  },
   plugins: [
     require("daisyui"),
     plugin(function ({ addUtilities }) {
