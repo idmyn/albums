@@ -2,23 +2,28 @@ import { Effect, Stream, Chunk, pipe } from "effect";
 import * as S from "@effect/schema/Schema";
 import * as PR from "@effect/schema/ParseResult";
 import { setFetchInfoForUser } from "../jobs";
-import { GetAlbumsRequestError } from "./errors";
+import { GetAlbumsRequestError, checkHeaders } from "./errors";
+import * as Http from "@effect/platform/HttpClient";
+import { IncomingMessage } from "@effect/platform/Http/IncomingMessage";
+
+const schemaEitherBodyJson = <I, A>(schema: S.Schema<I, A>) => {
+  const parse = S.parseEither(schema);
+  return <E>(
+    self: IncomingMessage<E>
+  ): Effect.Effect<never, E | PR.ParseError, A> =>
+    Effect.flatMap(self.json, parse);
+};
 
 export const fetchAlbumsPage = (access_token: string, pageUrl?: string) =>
-  pipe(
-    Effect.tryPromise({
-      try: async () => {
-        const firstPage = "https://api.spotify.com/v1/me/albums?limit=50";
-        return fetch(pageUrl ?? firstPage, {
-          headers: {
-            Authorization: "Bearer " + access_token,
-          },
-        }).then((res) => res.json());
-      },
-      catch: (cause) => new GetAlbumsRequestError({ cause }),
-    }),
-    Effect.flatMap(S.parseEither(SpotifyAlbumsResponse))
-  ).pipe(Effect.withSpan("fetchAlbumsPage"));
+  Http.request
+    .get(pageUrl ?? "https://api.spotify.com/v1/me/albums?limit=50")
+    .pipe(
+      Http.request.setHeader("Authorization", "Bearer " + access_token),
+      Http.client.fetch(),
+      Effect.flatMap(checkHeaders),
+      Effect.flatMap(schemaEitherBodyJson(SpotifyAlbumsResponse)),
+      Effect.withSpan("spotify.fetchUser")
+    );
 
 export const fetchAlbums = (userId: string, access_token: string) => {
   const pageSize = 50;

@@ -45,7 +45,7 @@ export default function User() {
   );
 
   return (
-    <div className="w-full py-5">
+    <div className="w-full">
       {albums.length === 0 && isAlbumsFetchInProgress ? (
         <div className="center-screen">
           <div className="flex flex-col items-center gap-2">
@@ -54,7 +54,7 @@ export default function User() {
           </div>
         </div>
       ) : (
-        <>
+        <div className="py-5">
           {isAlbumsFetchInProgress && !!totalAlbumCount && (
             <div className="fixed top-6 right-6 text-right bg-white p-1">
               <span>
@@ -75,7 +75,7 @@ export default function User() {
               />
             ))}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
