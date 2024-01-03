@@ -4,6 +4,8 @@ import { env } from "../env";
 import { GetTokensRequestError, checkHeaders } from "./errors";
 import * as Http from "@effect/platform/HttpClient";
 
+export const USER_THAT_WORKS = "sa67jzfngj63u3ltursy3l1cq";
+
 export const fetchUser = ({ access_token }: Tokens) =>
   Http.request
     .get("https://api.spotify.com/v1/me")

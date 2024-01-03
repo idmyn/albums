@@ -2,7 +2,7 @@
 
 Log in with spotify and see your albums sorted by the average colour of their artwork
 
-NOTE: this won't actually work for you because my spotify api credentials haven't gone through the approval process
+NOTE: my spotify api credentials haven't gone through the approval process, so authenticating with spotify will redirect you to my library
 
 ## stack
 

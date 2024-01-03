@@ -11,7 +11,7 @@ export class GetUserRequestError extends Data.TaggedError(
 
 export class SpotifyUnauthorizedError extends Data.TaggedError(
   "SpotifyUnauthorizedError"
-)<CommonErrorFields> {}
+)<{ userId?: string }> {}
 
 export class GetTokensRequestError extends Data.TaggedError(
   "GetTokensRequestError"
@@ -32,7 +32,7 @@ export const checkHeaders = (
   Http.response.ClientResponse
 > => {
   const error = {
-    403: new SpotifyUnauthorizedError({ cause: null }), // TODO
+    403: new SpotifyUnauthorizedError({}), // TODO more debug info?
   }[response.status];
 
   if (error) return Effect.fail(error);

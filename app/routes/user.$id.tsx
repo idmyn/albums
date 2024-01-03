@@ -1,4 +1,9 @@
-import { MetaFunction, useLoaderData, useRevalidator } from "@remix-run/react";
+import {
+  MetaFunction,
+  useLoaderData,
+  useLocation,
+  useRevalidator,
+} from "@remix-run/react";
 import { colord } from "colord";
 import { Effect, pipe } from "effect";
 import { sortByColor } from "~/lib/color";
@@ -44,6 +49,10 @@ export default function User() {
     isAlbumsFetchInProgress ? 1000 : null
   );
 
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const isUnauthorized = params.get("unauthorized") === "true";
+
   return (
     <div className="w-full">
       {albums.length === 0 && isAlbumsFetchInProgress ? (
@@ -55,25 +64,37 @@ export default function User() {
         </div>
       ) : (
         <div className="py-5">
-          {isAlbumsFetchInProgress && !!totalAlbumCount && (
-            <div className="fixed top-6 right-6 text-right bg-white p-1">
-              <span>
-                fetched & processed
-                <br />
-                {albums.length} / {totalAlbumCount} so far
-                <br />
-                hang tight
-              </span>
+          {isUnauthorized && (
+            <div className="text-center">
+              <div className="px-5 text-balance">
+                This isn't your library - sorry! Access is restricted to only my
+                library until I've gone through the Spotify API approval
+                process...
+              </div>
+              <div className="divider" />
             </div>
           )}
-          <div className="w-3/4 mx-auto flex flex-wrap gap-3 justify-center">
-            {albums.map((album) => (
-              <img
-                key={album.id}
-                src={album.mediumImageUrl}
-                alt={`album art for ${album.name}`}
-              />
-            ))}
+          <div className="w-3/4 mx-auto ">
+            {isAlbumsFetchInProgress && !!totalAlbumCount && (
+              <div className="fixed top-6 right-6 text-right bg-white p-1">
+                <span>
+                  fetched & processed
+                  <br />
+                  {albums.length} / {totalAlbumCount} so far
+                  <br />
+                  hang tight
+                </span>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-3 justify-center">
+              {albums.map((album) => (
+                <img
+                  key={album.id}
+                  src={album.mediumImageUrl}
+                  alt={`album art for ${album.name}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}

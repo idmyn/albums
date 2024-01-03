@@ -1,11 +1,12 @@
 import { Redirect, effectLoader } from "~/lib/effect";
 import { spotifyAuthState } from "~/cookies.server";
 import { pipe, Effect } from "effect";
-import { fetchTokens, fetchUser } from "~/lib/spotify/users";
+import { USER_THAT_WORKS, fetchTokens, fetchUser } from "~/lib/spotify/users";
 import { storeUser } from "~/lib/db/queries/users";
 import { triggerAlbumsFetchAndStore } from "~/lib/albums";
 import { SemanticAttributes } from "@opentelemetry/semantic-conventions";
 import { commitSession, getSession } from "~/sessions";
+import { SpotifyUnauthorizedError } from "~/lib/spotify/errors";
 
 export const loader = effectLoader("auth-callback", ({ request }) => {
   const url = new URL(request.url);
@@ -39,6 +40,14 @@ export const loader = effectLoader("auth-callback", ({ request }) => {
             [SemanticAttributes.ENDUSER_ID]: user.id,
           })
         ),
+        Effect.flatMap((user) => {
+          if (user.id !== USER_THAT_WORKS) {
+            return Effect.fail(
+              new SpotifyUnauthorizedError({ userId: user.id })
+            );
+          }
+          return Effect.succeed(user);
+        }),
         Effect.tap(storeUser),
         Effect.tap(({ id }) =>
           triggerAlbumsFetchAndStore(id, tokens.access_token)
